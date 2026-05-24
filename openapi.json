@@ -1,1 +1,427 @@
-{"openapi":"3.1.0","info":{"title":"PriceRadar API","description":"Real-time e-commerce price data from Amazon and Walmart","version":"0.1.0"},"paths":{"/api/v1/price":{"get":{"tags":["prices"],"summary":"Get Price","operationId":"get_price_api_v1_price_get","parameters":[{"name":"product_id","in":"query","required":true,"schema":{"type":"string","description":"Amazon ASIN (e.g. B09C27LNBS)","title":"Product Id"},"description":"Amazon ASIN (e.g. B09C27LNBS)"},{"name":"source","in":"query","required":true,"schema":{"type":"string","description":"Supported: amazon. Coming soon: walmart, bestbuy, ebay","title":"Source"},"description":"Supported: amazon. Coming soon: walmart, bestbuy, ebay"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PriceResult"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/v1/prices":{"get":{"tags":["prices"],"summary":"Search Prices","operationId":"search_prices_api_v1_prices_get","parameters":[{"name":"query","in":"query","required":true,"schema":{"type":"string","description":"Product ID to look up across sources","title":"Query"},"description":"Product ID to look up across sources"},{"name":"sources","in":"query","required":false,"schema":{"type":"string","description":"Comma-separated sources (amazon)","default":"amazon","title":"Sources"},"description":"Comma-separated sources (amazon)"}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/SearchResult"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/api/v1/history":{"get":{"tags":["prices"],"summary":"Get History","operationId":"get_history_api_v1_history_get","parameters":[{"name":"product_id","in":"query","required":true,"schema":{"type":"string","description":"Amazon ASIN","title":"Product Id"},"description":"Amazon ASIN"},{"name":"source","in":"query","required":true,"schema":{"type":"string","description":"Supported: amazon","title":"Source"},"description":"Supported: amazon"},{"name":"days","in":"query","required":false,"schema":{"type":"integer","maximum":90,"minimum":1,"default":30,"title":"Days"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{"$ref":"#/components/schemas/PriceHistoryResult"}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}},"/health":{"get":{"summary":"Health","operationId":"health_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}}},"components":{"schemas":{"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"PriceHistoryItem":{"properties":{"price":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Price"},"currency":{"type":"string","title":"Currency"},"availability":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Availability"},"scraped_at":{"type":"string","format":"date-time","title":"Scraped At"}},"type":"object","required":["price","currency","availability","scraped_at"],"title":"PriceHistoryItem"},"PriceHistoryResult":{"properties":{"product_id":{"type":"string","title":"Product Id"},"source":{"type":"string","title":"Source"},"title":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Title"},"history":{"items":{"$ref":"#/components/schemas/PriceHistoryItem"},"type":"array","title":"History"}},"type":"object","required":["product_id","source","title","history"],"title":"PriceHistoryResult"},"PriceResult":{"properties":{"product_id":{"type":"string","title":"Product Id"},"source":{"type":"string","title":"Source"},"title":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Title"},"price":{"anyOf":[{"type":"number"},{"type":"null"}],"title":"Price"},"currency":{"type":"string","title":"Currency"},"availability":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Availability"},"cached":{"type":"boolean","title":"Cached","default":false},"scraped_at":{"type":"string","format":"date-time","title":"Scraped At"}},"type":"object","required":["product_id","source","title","price","currency","availability","scraped_at"],"title":"PriceResult"},"SearchResult":{"properties":{"results":{"items":{"$ref":"#/components/schemas/PriceResult"},"type":"array","title":"Results"}},"type":"object","required":["results"],"title":"SearchResult"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PriceRadar API",
+    "description": "Real-time e-commerce price data from Amazon and Walmart",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/price": {
+      "get": {
+        "tags": [
+          "prices"
+        ],
+        "summary": "Get Price",
+        "operationId": "get_price_api_v1_price_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Amazon ASIN (e.g. B09C27LNBS)",
+              "title": "Product Id"
+            },
+            "description": "Amazon ASIN (e.g. B09C27LNBS)"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Supported: amazon. Coming soon: walmart, bestbuy, ebay",
+              "title": "Source"
+            },
+            "description": "Supported: amazon. Coming soon: walmart, bestbuy, ebay"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/prices": {
+      "get": {
+        "tags": [
+          "prices"
+        ],
+        "summary": "Search Prices",
+        "operationId": "search_prices_api_v1_prices_get",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Product ID to look up across sources",
+              "title": "Query"
+            },
+            "description": "Product ID to look up across sources"
+          },
+          {
+            "name": "sources",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Comma-separated sources (amazon)",
+              "default": "amazon",
+              "title": "Sources"
+            },
+            "description": "Comma-separated sources (amazon)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/history": {
+      "get": {
+        "tags": [
+          "prices"
+        ],
+        "summary": "Get History",
+        "operationId": "get_history_api_v1_history_get",
+        "parameters": [
+          {
+            "name": "product_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Amazon ASIN",
+              "title": "Product Id"
+            },
+            "description": "Amazon ASIN"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Supported: amazon",
+              "title": "Source"
+            },
+            "description": "Supported: amazon"
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 90,
+              "minimum": 1,
+              "default": 30,
+              "title": "Days"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PriceHistoryResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PriceHistoryItem": {
+        "properties": {
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "scraped_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scraped At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "price",
+          "currency",
+          "availability",
+          "scraped_at"
+        ],
+        "title": "PriceHistoryItem"
+      },
+      "PriceHistoryResult": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/PriceHistoryItem"
+            },
+            "type": "array",
+            "title": "History"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "source",
+          "title",
+          "history"
+        ],
+        "title": "PriceHistoryResult"
+      },
+      "PriceResult": {
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "title": "Product Id"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "price": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Price"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency"
+          },
+          "availability": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Availability"
+          },
+          "cached": {
+            "type": "boolean",
+            "title": "Cached",
+            "default": false
+          },
+          "scraped_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scraped At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "product_id",
+          "source",
+          "title",
+          "price",
+          "currency",
+          "availability",
+          "scraped_at"
+        ],
+        "title": "PriceResult"
+      },
+      "SearchResult": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/PriceResult"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "SearchResult"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api-production-73a9.up.railway.app",
+      "description": "Production"
+    }
+  ]
+}
